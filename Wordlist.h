@@ -30,6 +30,7 @@
 // Do not use any other #includes
 //
 #include "Wordlist_base.h"
+#include <algorithm>
 #include <cassert>
 #include <fstream>
 #include <iostream>
@@ -46,7 +47,6 @@ class Wordlist : public Wordlist_base
     struct Node
     {
         string word;
-        int count;
         Node *next;
         Node *prev;
     };
@@ -57,6 +57,7 @@ class Wordlist : public Wordlist_base
 
     Node *head; // Holds the first node of the doubly-linked list
     bool frozen; // Specifies whether the doubly-linked list is frozen or not
+    int size = 0; // Tracks the number of nodes in the doubly-linked list
 
 public:
 
@@ -133,7 +134,7 @@ public:
 
     int length() const
     {
-        return head->count;
+        return size;
     }
 
 
@@ -162,46 +163,44 @@ public:
         if (head == nullptr) // Currently an empty doubly-linked list
         {
             head = new_node;
-            head->count = 1; // Set the number of nodes in the list to one
         }
         else if (head->next == nullptr) // Only one element in the doubly-linked list
         {            
             if (w == head->word) // Checks if the word already exists in the doubly-linked list
             {
                 delete new_node; // Free the memory that was allocated
+                size--;
                 return;
             }
             head->next = new_node;
             new_node->prev = head;
-            head->count = 2;
         }
         else
         {
             Node *current = head;
-            int size = 2; // Keeps track of the number of nodes in the list
-
             while (current->next != nullptr) // Keep iterating until last node is reached
             {
                 if (w == current->word) // Do nothing if w is already in the list
                 {
                     delete new_node; // Free the memory that was allocated
+                    size--;
                     return;
                 }
                 current = current->next;
-                size++;
             }
             // Condition applies to solely check the last node in the linked list so that 
             // if the word doesn't exist already in the doubly-linked list, the word can be inserted
             if (w == current->word) // Do nothing if w is already in the list
             {
                 delete new_node; // Free the memory that was allocated
+                size--;
                 return;
             }
             current->next = new_node;
             new_node->prev = current;
-            head->count = size;
         }
     }
+
 
     // Removes all occurrences of specified word
     void remove_word(const string &w)
@@ -213,7 +212,6 @@ public:
 
         Node *current = head;
         Node *to_delete;
-        int size = 0; // Counts the number of nodes in the list
 
         while (current != nullptr)
         {
@@ -240,9 +238,7 @@ public:
             {
                 current = current->next;
             }
-            size++;
         }
-        head->count = size;
     }
 
 
@@ -291,11 +287,11 @@ public:
         new_node->word = word;
         new_node->next = nullptr;
         new_node->prev = nullptr;
-        new_node->count = 0;
+        size++;
         return new_node;
     }
-
     
+
 }; // class Wordlist
 
 //
