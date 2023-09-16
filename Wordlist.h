@@ -287,6 +287,9 @@ public:
         new_node->word = word;
         new_node->next = nullptr;
         new_node->prev = nullptr;
+
+        // Increments the number of nodes in the doubly-linked list as they're created
+        // and decrements the size if the word associated with the node already exists
         size++;
         return new_node;
     }
