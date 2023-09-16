@@ -1,0 +1,305 @@
+// Wordlist.h
+
+#pragma once
+
+/////////////////////////////////////////////////////////////////////////
+//
+// Student Info
+// ------------
+//
+// Name : Evan Law
+// St.# : 301464313
+// Email: eel3@sfu.ca
+//
+//
+// Statement of Originality
+// ------------------------
+//
+// All the code and comments below are my own original work. For any non-
+// original work, I have provided citations in the comments with enough
+// detail so that someone can see the exact source and extent of the
+// borrowed work.
+//
+// In addition, I have not shared this work with anyone else, and I have
+// not seen solutions from other students, tutors, websites, books,
+// etc.
+//
+/////////////////////////////////////////////////////////////////////////
+
+//
+// Do not use any other #includes
+//
+#include "Wordlist_base.h"
+#include <cassert>
+#include <fstream>
+#include <iostream>
+#include <string>
+
+using namespace std;
+
+class Wordlist : public Wordlist_base
+{
+    //
+    // Use this Node to implement the doubly-linked list for the word list.
+    // Don't change it any way!
+    //
+    struct Node
+    {
+        string word;
+        int count;
+        Node *next;
+        Node *prev;
+    };
+
+    //
+    // ... your code goes here ...
+    //
+
+    Node *head; // Holds the first node of the doubly-linked list
+    bool frozen; // Specifies whether the doubly-linked list is frozen or not
+
+public:
+
+    // Default constructor that uses initialization lists for efficiency
+    // frozen variable is initially false until the get_sorted_index() method is called
+    Wordlist()
+        : head(nullptr), frozen(false)
+    {}
+
+
+    // Copy constructor. Note that the copy constructor copies the boolean value of frozen
+    Wordlist(const Wordlist& other)
+        : head(nullptr), frozen(other.frozen)
+    {
+        Node *current = other.head;
+        while (current != nullptr) // Loops until the end of the doubly-linked list
+        {
+            add_word(current->word);
+            current = current->next;
+        }
+    }
+    
+
+    Wordlist(const string& filename)
+        : head(nullptr), frozen(false)
+    {
+        ifstream infile;
+        infile.open(filename);
+        if (infile.is_open()) // Checks that the provided file was opened correctly
+        {
+            string word;
+            while (infile >> word)
+            {
+                add_word(word);
+            }
+            infile.close();
+        }
+    }
+
+
+    ~Wordlist()
+    {
+        Node *to_delete; // Stores the node to be deleted
+        while (head != nullptr)
+        {
+            to_delete = head;
+            head = head->next;
+            delete to_delete;
+        }
+        head = nullptr; // Prevent dangling pointers
+    }
+
+
+    bool is_frozen() const
+    {
+        return frozen;
+    }
+
+
+    bool contains(const string &w) const
+    {
+        Node *current = head;
+        while (current != nullptr)
+        {
+            if (w == current->word)
+            {
+                return true;
+            }
+            current = current->next;
+        }
+        return false; // Exiting the loop implies word not found
+    }
+
+
+    int length() const
+    {
+        return head->count;
+    }
+
+
+    string get_word(int index) const
+    {
+        Node *current = head;
+        int count = 0;
+        while (index != count)
+        {
+            current = current->next;
+            count++;
+        }
+        return current->word;
+    }
+
+
+    void add_word(const string &w)
+    {
+        if (is_frozen())
+        {
+            throw runtime_error("frozen list: cannot add word because get_sorted_index() method has already been called");
+        }
+
+        Node *new_node = create_node(w);
+
+        if (head == nullptr) // Currently an empty doubly-linked list
+        {
+            head = new_node;
+            head->count = 1; // Set the number of nodes in the list to one
+        }
+        else if (head->next == nullptr) // Only one element in the doubly-linked list
+        {            
+            if (w == head->word) // Checks if the word already exists in the doubly-linked list
+            {
+                delete new_node; // Free the memory that was allocated
+                return;
+            }
+            head->next = new_node;
+            new_node->prev = head;
+            head->count = 2;
+        }
+        else
+        {
+            Node *current = head;
+            int size = 2; // Keeps track of the number of nodes in the list
+
+            while (current->next != nullptr) // Keep iterating until last node is reached
+            {
+                if (w == current->word) // Do nothing if w is already in the list
+                {
+                    delete new_node; // Free the memory that was allocated
+                    return;
+                }
+                current = current->next;
+                size++;
+            }
+            // Condition applies to solely check the last node in the linked list so that 
+            // if the word doesn't exist already in the doubly-linked list, the word can be inserted
+            if (w == current->word) // Do nothing if w is already in the list
+            {
+                delete new_node; // Free the memory that was allocated
+                return;
+            }
+            current->next = new_node;
+            new_node->prev = current;
+            head->count = size;
+        }
+    }
+
+    // Removes all occurrences of specified word
+    void remove_word(const string &w)
+    {
+        if (is_frozen())
+        {
+            throw runtime_error("frozen list: cannot remove word because get_sorted_index() method has already been called");
+        }
+
+        Node *current = head;
+        Node *to_delete;
+        int size = 0; // Counts the number of nodes in the list
+
+        while (current != nullptr)
+        {
+            if (w == current->word) // Rework the pointers to maintain the doubly linked list
+            {
+                if (current->next != nullptr)
+                {
+                    current->next->prev = current->prev;
+                }
+                if (current->prev != nullptr)
+                {
+                    current->prev->next = current->next;
+                }
+                if (current == head)
+                {
+                    head = current->next;
+                }
+                to_delete = current;
+                current = current->next;
+                delete to_delete;
+                size--; // Decrement the number of nodes in the list
+            }
+            else
+            {
+                current = current->next;
+            }
+            size++;
+        }
+        head->count = size;
+    }
+
+
+    vector<string *> get_sorted_index()
+    {
+        vector<string *> words;
+        Node *current = head;
+        while (current != nullptr) // Insert all the words in the doubly-linked list to the vector
+        {
+            words.push_back(&(current->word));
+            current = current->next;
+        }
+
+        int i, j;
+        int vector_length = words.size();
+        string *str1, *str2;
+
+        // Uses insertion sort to sort the words and compares the strings using the compare method
+        for (i = 1; i < vector_length; i++)
+        {
+            j = i;
+            str1 = words[j];
+            while (j > 0)
+            {
+                str2 = words[j-1];
+                if (str1->compare(*str2) < 0)
+                {
+                    swap(words[j], words[j-1]);
+                }               
+                j--;
+            }
+        }        
+        frozen = true;
+        return words;
+    }
+
+
+    //
+    // ... you can write helper methods if you need them ...
+    //
+
+    // Creates a node for the doubly linked list
+    Node *create_node(const string word)
+    {
+        Node *new_node = new Node;
+        new_node->word = word;
+        new_node->next = nullptr;
+        new_node->prev = nullptr;
+        new_node->count = 0;
+        return new_node;
+    }
+
+    
+}; // class Wordlist
+
+//
+// ... you can write helper functions here (or before Wordlist) if you need them
+// ...
+//
+
