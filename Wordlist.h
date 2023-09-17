@@ -124,7 +124,7 @@ public:
         {
             if (w == current->word)
             {
-                return true;
+                return true; // w in the word list
             }
             current = current->next;
         }
@@ -188,7 +188,7 @@ public:
                 }
                 current = current->next;
             }
-            // Condition applies to solely check the last node in the linked list so that 
+            // Condition applies to solely check the last node in the doubly-linked list so that 
             // if the word doesn't exist already in the doubly-linked list, the word can be inserted
             if (w == current->word) // Do nothing if w is already in the list
             {
@@ -213,10 +213,11 @@ public:
         Node *current = head;
         Node *to_delete;
 
-        while (current != nullptr)
+        while (current != nullptr) // Loop until nullptr is reached
         {
-            if (w == current->word) // Rework the pointers to maintain the doubly linked list
+            if (w == current->word) // Check if the current node has the word to be removed
             {
+                // Rework the pointers to maintain the doubly linked list
                 if (current->next != nullptr)
                 {
                     current->next->prev = current->prev;
@@ -283,15 +284,10 @@ public:
     // Creates a node for the doubly linked list
     Node *create_node(const string word)
     {
-        Node *new_node = new Node;
-        new_node->word = word;
-        new_node->next = nullptr;
-        new_node->prev = nullptr;
-
         // Increments the number of nodes in the doubly-linked list as they're created
         // and decrements the size if the word associated with the node already exists
         size++;
-        return new_node;
+        return new Node{word, nullptr, nullptr};
     }
     
 
