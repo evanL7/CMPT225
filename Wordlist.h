@@ -81,6 +81,7 @@ public:
     }
     
 
+    // Constructor that accepts filename as the parameter
     Wordlist(const string& filename)
         : head(nullptr), frozen(false)
     {
@@ -98,6 +99,7 @@ public:
     }
 
 
+    // Destructor that deallocates memory for the doubly-linked list
     ~Wordlist()
     {
         Node *to_delete; // Stores the node to be deleted
@@ -124,7 +126,7 @@ public:
         {
             if (w == current->word)
             {
-                return true; // w in the word list
+                return true; // w is in the word list
             }
             current = current->next;
         }
@@ -142,7 +144,7 @@ public:
     {
         Node *current = head;
         int count = 0;
-        while (index != count)
+        while (index != count) // Loop until specified index is reached
         {
             current = current->next;
             count++;
@@ -257,15 +259,16 @@ public:
         int vector_length = words.size();
         string *str1, *str2;
 
-        // Uses insertion sort to sort the words and compares the strings using the compare method
+        // Uses insertion sort to sort the words alphabetically and 
+        // compares the strings using the compare method
         for (i = 1; i < vector_length; i++)
         {
             j = i;
             str1 = words[j];
             while (j > 0)
             {
-                str2 = words[j-1];
-                if (str1->compare(*str2) < 0)
+                str2 = words[j-1]; // Stores words before str1
+                if (str1->compare(*str2) < 0) // Check if str1 needs to be shifted to the left
                 {
                     swap(words[j], words[j-1]);
                 }               
@@ -277,11 +280,7 @@ public:
     }
 
 
-    //
-    // ... you can write helper methods if you need them ...
-    //
-
-    // Creates a node for the doubly linked list
+    // Helper function that creates a node for the doubly linked list
     Node *create_node(const string word)
     {
         // Increments the number of nodes in the doubly-linked list as they're created
@@ -289,12 +288,5 @@ public:
         size++;
         return new Node{word, nullptr, nullptr};
     }
-    
 
 }; // class Wordlist
-
-//
-// ... you can write helper functions here (or before Wordlist) if you need them
-// ...
-//
-
