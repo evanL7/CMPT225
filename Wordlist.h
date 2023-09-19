@@ -204,7 +204,7 @@ public:
     }
 
 
-    // Removes all occurrences of specified word
+    // Removes specified word
     void remove_word(const string &w)
     {
         if (is_frozen())
@@ -213,34 +213,28 @@ public:
         }
 
         Node *current = head;
-        Node *to_delete;
 
-        while (current != nullptr) // Loop until nullptr is reached
+        while (current != nullptr && w != current->word) // Get to the node to be removed
         {
-            if (w == current->word) // Check if the current node has the word to be removed
+            current = current->next;
+        }
+        if (current != nullptr) // Check that the word exists in the doubly-linked list
+        {
+            // Rework the pointers to maintain the doubly-linked list
+            if (current->next != nullptr)
             {
-                // Rework the pointers to maintain the doubly linked list
-                if (current->next != nullptr)
-                {
-                    current->next->prev = current->prev;
-                }
-                if (current->prev != nullptr)
-                {
-                    current->prev->next = current->next;
-                }
-                if (current == head)
-                {
-                    head = current->next;
-                }
-                to_delete = current;
-                current = current->next;
-                delete to_delete;
-                size--; // Decrement the number of nodes in the list
+                current->next->prev = current->prev;
             }
-            else
+            if (current->prev != nullptr)
             {
-                current = current->next;
+                current->prev->next = current->next;
             }
+            if (current == head)
+            {
+                head = current->next;
+            }
+            delete current;
+            size--; // Decrement the number of nodes in the list
         }
     }
 
@@ -275,7 +269,7 @@ public:
                 j--;
             }
         }        
-        frozen = true;
+        frozen = true; // Freezes the word list
         return words;
     }
 
