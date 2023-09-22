@@ -157,7 +157,8 @@ public:
     {
         if (is_frozen())
         {
-            throw runtime_error("frozen list: cannot add word because get_sorted_index() method has already been called");
+            throw runtime_error("frozen list: cannot add word because "
+                                "get_sorted_index() method has already been called");
         }
 
         Node *new_node = create_node(w);
@@ -190,8 +191,9 @@ public:
                 }
                 current = current->next;
             }
-            // Condition applies to solely check the last node in the doubly-linked list so that 
-            // if the word doesn't exist already in the doubly-linked list, the word can be inserted
+            // Condition applies to solely check the last node in the doubly-linked list
+            // so that if the word doesn't already exist in the doubly-linked list, 
+            // the word can be inserted
             if (w == current->word) // Do nothing if w is already in the list
             {
                 delete new_node; // Free the memory that was allocated
@@ -209,7 +211,8 @@ public:
     {
         if (is_frozen())
         {
-            throw runtime_error("frozen list: cannot remove word because get_sorted_index() method has already been called");
+            throw runtime_error("frozen list: cannot remove word because "
+                                "get_sorted_index() method has already been called");
         }
 
         Node *current = head;
