@@ -42,8 +42,8 @@ class Stringlist
     // Nodes will create a singly-linked list
     struct Node
     {
-        // Specifies operation to do formatted in the form 
-        // "[OPERATION] [INDEX] [optional: WORD]"
+        // Specifies operation to do formatted in the form:
+        // "[OPERATION] [INDEX] [special cases: WORD]"
         string operation; 
         Node *next;
     };
@@ -244,8 +244,14 @@ public:
     //
     void set(int index, string value)
     {
+        string prev_word = Stringlist::get(index);
         check_bounds("set", index);
         arr[index] = value;
+
+        // Concatenates the operation and uses the to_string function to convert int to str
+        // Form: "SET # [word]"
+        string operation = "SET " + std::to_string(index) + " " + prev_word;
+        push(undo_stack, operation);
     }
 
     //
@@ -270,7 +276,7 @@ public:
         sz++;
 
         // Concatenates the operation and uses the to_string function to convert int to str
-        string operation = "REMOVE " + std::to_string(index);
+        string operation = "REMOVE " + std::to_string(index); // Form: "REMOVE #"
         push(undo_stack, operation);
     }
 
@@ -352,26 +358,35 @@ public:
         if (undo_stack != nullptr) // Undo stack is not empty
         {
             string operation = undo_stack->head->operation; // Get the operation to perform
+            int start_pos, index_pos; // Find where number begins and what the number is
 
             // Parses the string to identify the operation to perform
             if (operation.find("REMOVE") != std::string::npos)
             {
-                int start_pos = std::string("REMOVE ").size(); // Find where number begins
+                start_pos = std::string("REMOVE ").size(); 
                 
                 // Get the number as a string and then
                 // convert the number from a string to an integer
-                int index_pos = std::stoi(operation.substr(start_pos)); 
+                index_pos = std::stoi(operation.substr(start_pos)); 
 
-                for (int i = 0; i < sz; i++)
+                for (int i = index_pos, swaps = sz - 1; i < swaps; i++)
                 {
-                    if (i == index_pos)
-                    {
-                        while (i < sz - 1)
-                        {
-                            swap(arr[i], arr[i+1]);
-                        }
-                    }
+                    swap(arr[i], arr[i+1]); // Shifts the number to remove out of sz bounds
                 }
+                sz--; // Decrements the number of words in the list
+            }
+            else if (operation.find("SET") != std::string::npos)
+            {
+                start_pos = std::string("SET ").size();
+
+                // Finds the space character after the number to parse the number
+                int second_space = operation.find(" ", start_pos);
+                index_pos = std::stoi(operation.substr(start_pos, second_space - start_pos)); 
+                
+                // Parses the word to put back
+                string word = operation.substr(second_space + 1);
+
+                arr[index_pos] = word; // Reverts the word back to original
                 sz--; // Decrements the number of words in the list
             }
 
