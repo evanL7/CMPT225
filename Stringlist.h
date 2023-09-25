@@ -139,6 +139,7 @@ public:
         delete_stack(undo_stack);
     }
 
+
     //
     // Assignment operator: makes a copy of the given StringList.
     //
@@ -163,6 +164,11 @@ public:
     {
         if (this != &other)
         {
+            // Form: "set lst1 to {words}"
+            string result = this->to_string();
+            string operation = "set lst1 to " + result;
+            push(undo_stack, operation);
+
             delete[] arr;
             cap = other.capacity();
             arr = new string[cap];
@@ -309,12 +315,18 @@ public:
     //
     void remove_at(int index)
     {
+        string prev_word = Stringlist::get(index);
         check_bounds("remove_at", index);
         for (int i = index; i < sz - 1; i++)
         {
             arr[i] = arr[i + 1];
         }
         sz--;
+
+        // Concatenates the operation and uses the to_string function to convert int to str
+        // Form: "INSERT # [word]"
+        string operation = "INSERT " + std::to_string(index) + " " + prev_word;
+        push(undo_stack, operation);
     }
 
     //
@@ -324,9 +336,27 @@ public:
     //
     void remove_all()
     {
+        // Form: "set lst1 to {words}"        
+        string result = to_string();
+        string operation = "set lst1 to " + result;
+        push(undo_stack, operation);
+
+        int nodes_to_delete = sz; // Get the size of the list before deletion
+
         while (sz > 0)
         {
             remove_at(sz - 1);
+        }
+
+        // Since remove_at function call adds nodes to the stack,
+        // need to remove the added nodes from the stack to get back to the state before
+        Node *to_delete = undo_stack->head;
+        while (nodes_to_delete != 0)
+        {
+            undo_stack->head = undo_stack->head->next;
+            delete to_delete;
+            to_delete = undo_stack->head;
+            nodes_to_delete--;
         }
     }
 
@@ -371,7 +401,7 @@ public:
 
                 for (int i = index_pos, swaps = sz - 1; i < swaps; i++)
                 {
-                    swap(arr[i], arr[i+1]); // Shifts the number to remove out of sz bounds
+                    arr[i] = arr[i + 1]; // Shifts the elements to the left
                 }
                 sz--; // Decrements the number of words in the list
             }
@@ -388,6 +418,58 @@ public:
 
                 arr[index_pos] = word; // Reverts the word back to original
                 sz--; // Decrements the number of words in the list
+            }
+            else if (operation.find("INSERT") != std::string::npos)
+            {
+                start_pos = std::string("INSERT ").size();
+
+                // Finds the space character after the number to parse the number
+                int second_space = operation.find(" ", start_pos);
+                index_pos = std::stoi(operation.substr(start_pos, second_space - start_pos)); 
+                
+                // Parses the word to put back
+                string word = operation.substr(second_space + 1);
+
+                string next_word;
+                string current = arr[index_pos]; // Gets the existing word in the list
+                arr[index_pos] = word; // Inserts the word back
+
+                // Shifts the words to the right to revert the changes
+                for (int i = index_pos, swaps = sz - 1; i < swaps; i++)
+                {
+                    next_word = arr[i+1]; 
+                    arr[i+1] = current;
+                    current = next_word;
+                }
+                sz++; // Increment the number of words in the list
+            }
+            else if (operation.find("set lst1") != std::string::npos)
+            {
+                // Count variable keeps track of the location to start searching 
+                // for quotation character, prev_sz keeps track of the size of the list
+                // first and second quote variables look for 
+                // the start of the word and end of word, respectively
+                int count = 0, prev_sz = 0, first_quote, second_quote;
+                string word; // Parses the word to put back
+
+                // Reconstructs the previous word list by parsing the words one at a time
+                while (true)
+                {
+                    // Assumes no words in the list already have quotes in the word
+                    first_quote = operation.find("\"", count);
+                    if (first_quote == std::string::npos)
+                    {
+                        break; // No more words left in the original list
+                    }
+                    second_quote = operation.find("\"", first_quote + 1);
+                    
+                    word = operation.substr(first_quote + 1, 
+                                                    second_quote - first_quote - 1);                    
+                    arr[prev_sz] = word;
+                    count = first_quote + 1 + (second_quote - first_quote);
+                    prev_sz++;
+                }
+                sz = prev_sz;
             }
 
             // Removes the node from the stack
