@@ -43,7 +43,7 @@ class Stringlist
     struct Node
     {
         // Specifies operation to do formatted in the form:
-        // "[OPERATION] [INDEX] [special cases: WORD]"
+        // "[OPERATION] [INDEX] [special cases: word/list]"
         string operation; 
         Node *next;
     };
@@ -53,7 +53,7 @@ class Stringlist
         Node *head;
     };
 
-    MyStack *undo_stack = new MyStack{nullptr};
+    MyStack *undo_stack = new MyStack{nullptr}; // Holds the actions to perform
 
     int cap;     // capacity
     string *arr; // array of strings
@@ -134,9 +134,8 @@ public:
     //
     ~Stringlist()
     {
-        delete[] arr;
-        
-        delete_stack(undo_stack);
+        delete[] arr;        
+        delete_stack(undo_stack); // Deletes the undo stack
     }
 
 
@@ -164,9 +163,8 @@ public:
     {
         if (this != &other)
         {
-            // Form: "set lst1 to {words}"
-            string result = this->to_string();
-            string operation = "set lst1 to " + result;
+            // Form: "set list to {word, word, ... , word}"
+            string operation = "set list to " + this->to_string();
             push(undo_stack, operation);
 
             delete[] arr;
@@ -250,7 +248,9 @@ public:
     //
     void set(int index, string value)
     {
+        // Get the word to be removed to push to the undo stack
         string prev_word = Stringlist::get(index);
+
         check_bounds("set", index);
         arr[index] = value;
 
@@ -315,7 +315,9 @@ public:
     //
     void remove_at(int index)
     {
+        // Get the word to be removed to push to the undo stack
         string prev_word = Stringlist::get(index);
+
         check_bounds("remove_at", index);
         for (int i = index; i < sz - 1; i++)
         {
@@ -336,9 +338,8 @@ public:
     //
     void remove_all()
     {
-        // Form: "set lst1 to {words}"        
-        string result = to_string();
-        string operation = "set lst1 to " + result;
+        // Form: "set list to {word, word, ... , word}"
+        string operation = "set list to " + to_string();
         push(undo_stack, operation);
 
         int nodes_to_delete = sz; // Get the size of the list before deletion
@@ -350,6 +351,7 @@ public:
 
         // Since remove_at function call adds nodes to the stack,
         // need to remove the added nodes from the stack to get back to the state before
+        // the while loop above
         Node *to_delete = undo_stack->head;
         while (nodes_to_delete != 0)
         {
@@ -388,10 +390,11 @@ public:
         if (undo_stack != nullptr) // Undo stack is not empty
         {
             string operation = undo_stack->head->operation; // Get the operation to perform
-            int start_pos, index_pos; // Find where number begins and what the number is
+            int start_pos, index_pos; // Find where number begins, store what the number is
 
-            // Parses the string to identify the operation to perform
-            if (operation.find("REMOVE") != std::string::npos)
+            // Parses the string to identify the operation to perform by
+            // using the find method, npos means no match
+            if (operation.find("REMOVE") != std::string::npos) // Form: "REMOVE #"
             {
                 start_pos = std::string("REMOVE ").size(); 
                 
@@ -405,7 +408,7 @@ public:
                 }
                 sz--; // Decrements the number of words in the list
             }
-            else if (operation.find("SET") != std::string::npos)
+            else if (operation.find("SET") != std::string::npos) // Form: "SET # [word]"
             {
                 start_pos = std::string("SET ").size();
 
@@ -417,9 +420,8 @@ public:
                 string word = operation.substr(second_space + 1);
 
                 arr[index_pos] = word; // Reverts the word back to original
-                sz--; // Decrements the number of words in the list
             }
-            else if (operation.find("INSERT") != std::string::npos)
+            else if (operation.find("INSERT") != std::string::npos) // Form: "INSERT # [word]"
             {
                 start_pos = std::string("INSERT ").size();
 
@@ -430,9 +432,10 @@ public:
                 // Parses the word to put back
                 string word = operation.substr(second_space + 1);
 
-                string next_word;
                 string current = arr[index_pos]; // Gets the existing word in the list
                 arr[index_pos] = word; // Inserts the word back
+
+                string next_word; // Temporary variable
 
                 // Shifts the words to the right to revert the changes
                 for (int i = index_pos, swaps = sz - 1; i < swaps; i++)
@@ -443,12 +446,13 @@ public:
                 }
                 sz++; // Increment the number of words in the list
             }
-            else if (operation.find("set lst1") != std::string::npos)
-            {
-                // Count variable keeps track of the location to start searching 
-                // for quotation character, prev_sz keeps track of the size of the list
+            else if (operation.find("set list") != std::string::npos)
+            {   // Form: "set list to {word, word, ... , word}"
+
+                // Count variable keeps track of the index location to start searching 
+                // for the quotation character, prev_sz keeps track of the size of the list,
                 // first and second quote variables look for 
-                // the start of the word and end of word, respectively
+                // the start of the word and end of the word, respectively
                 int count = 0, prev_sz = 0, first_quote, second_quote;
                 string word; // Parses the word to put back
 
@@ -464,7 +468,7 @@ public:
                     second_quote = operation.find("\"", first_quote + 1);
                     
                     word = operation.substr(first_quote + 1, 
-                                                    second_quote - first_quote - 1);                    
+                                            second_quote - first_quote - 1);
                     arr[prev_sz] = word;
                     count = first_quote + 1 + (second_quote - first_quote);
                     prev_sz++;
@@ -483,7 +487,7 @@ public:
     }
 
 
-    // Pushes operation to the undo stack
+    // Pushes an operation to the undo stack
     void push(MyStack *s, string operation)
     {
         Node *new_node = new Node{operation, nullptr};
@@ -510,18 +514,6 @@ public:
         }
         s->head = nullptr; // Prevent dangling pointer
         delete undo_stack;
-    }
-
-    // DELETEAFTER
-    void print_stack(void)
-    {
-        cout << endl;
-        Node *current = undo_stack->head;
-        while (current != nullptr)
-        {
-            cout << current->operation << endl;
-            current = current->next;
-        }
     }
 
 
