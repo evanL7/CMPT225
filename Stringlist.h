@@ -38,7 +38,6 @@ using namespace std;
 
 class Stringlist
 {
-
     // Nodes will create a singly-linked list
     struct Node
     {
