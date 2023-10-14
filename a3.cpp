@@ -60,8 +60,17 @@ public:
     // Destructor
     ~Queue()
     {
-
+        Node *to_delete;
+        while (left != nullptr)
+        {
+            to_delete = left;
+            left = left->next;
+            delete to_delete;
+        }
+        left = nullptr; // Prevent dangling pointers
+        right = nullptr;
     }
+
 
     int size() const
     {
@@ -70,40 +79,85 @@ public:
 
     void enqueue(const Announcement &item)
     {
-        if (left == nullptr) // Empty doubly linked list
+        Node *new_node = new Node{item, nullptr, nullptr};
+        if (right == nullptr) // Empty doubly linked list
         {
-            Node *new_node = new Node{item, nullptr, nullptr};
             left = new_node;
             right = new_node;
-            return;
         }
-        
+        else if (right->prev == nullptr) // Single element case
+        {
+            new_node->prev = right;
+            right->next = new_node;
+            right = new_node;            
+        }
+        else // Not empty
+        {
+            // Rework the pointers to maintain the doubly linked list
+            right->next = new_node;
+            new_node->prev = right;
+            right = new_node;
+        }
+        sz++; // Increment the number of nodes
     }
 
 
     Announcement &front() const
     {
+        if (left == nullptr) // Empty doubly linked list
+        {
+            throw runtime_error("front: queue is empty");
+        }
         return left->data;
     }
 
 
     void dequeue()
     {
-        return;
+        if (left == nullptr) // Empty doubly linked list
+        {
+            throw runtime_error("dequeue: queue is empty");
+        }
+        else if (left->next == nullptr) // Single element case
+        {
+            delete left;
+            left = nullptr; // Prevent dangling pointers
+            right = nullptr;
+        }
+        else // Not empty
+        {
+            // Rework the pointers to maintain the doubly linked list
+            Node *to_delete = left;
+            left = left->next;
+            left->prev = nullptr;
+            delete to_delete;
+        }
+        sz--; // Decrement the number of nodes
     }
 
 
+    // DELETE AFTER: prints starting from the front of the queue
     void print_queue()
     {
         while (left != nullptr)
         {
             cout << left->data << endl;
-
-            cout << endl;
             left = left->next;
         }
     }
 
+};
+
+
+class JingleNet : public Queue
+{
+    Queue system;
+
+    Queue santa;
+    Queue reindeer;
+    Queue elf2;
+    Queue elf1;
+    Queue snowman;
 };
 
 
@@ -130,37 +184,32 @@ int main(int argc, char *argv[])
 
     while (getline(infile, line))
     {
-        num_lines++;
 
-        if (line.find("SEND") != std::string::npos && num_lines == 1)
+        if (line.substr(0,4) == "SEND")
         {
             start_pos = std::string("SEND ").size();
             parsed_text = line.substr(start_pos);
-            //cout << "TEXT:::" << parsed_text << endl;
 
             Announcement text(parsed_text);
-            //cout << "WHAT IS THIS" << endl << text << "\nLOOOK UP\n";
             q.enqueue(text);
         }
-        else if (line.find("REMOVE_ALL") != std::string::npos)
+        else if (line.substr(0,10) == "REMOVE_ALL")
         {
-
         }
-        else if (line.find("PROMOTE_ANNOUNCEMENTS") != std::string::npos)
+        else if (line.substr(0,21) == "PROMOTE_ANNOUNCEMENTS")
         {
-
         }
-        else if (line.find("ANNOUNCE") != std::string::npos)
+        else if (line.substr(0,8) == "ANNOUNCE")
         {
-
         }
 
 
+        num_lines++;
 
         cout << "line " << num_lines << ": " << line << endl;
     }
 
-    cout << endl << endl;
+    cout << endl;
     q.print_queue();
 
     return 0;
