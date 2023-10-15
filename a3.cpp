@@ -77,6 +77,7 @@ public:
         return sz;
     }
 
+
     void enqueue(const Announcement &item)
     {
         Node *new_node = new Node{item, nullptr, nullptr};
@@ -139,10 +140,12 @@ public:
     // DELETE AFTER: prints starting from the front of the queue
     void print_queue()
     {
-        while (left != nullptr)
+        Node *current = left;
+
+        while (current != nullptr)
         {
-            cout << left->data << endl;
-            left = left->next;
+            cout << current->data << endl;
+            current = current->next;
         }
     }
 
@@ -151,13 +154,87 @@ public:
 
 class JingleNet : public Queue
 {
-    Queue system;
-
-    Queue santa;
-    Queue reindeer;
-    Queue elf2;
-    Queue elf1;
     Queue snowman;
+    Queue elf1;
+    Queue elf2;
+    Queue reindeer;
+    Queue santa;
+
+public:
+
+    // Default constructor
+    JingleNet()
+    {}
+
+
+    // SEND command that adds announcement to the specified rank
+    void send(string line)
+    {
+        Announcement text(line);
+        string text_rank = to_string(text.get_rank());
+
+        if (text_rank == "snowman") { snowman.enqueue(text); }
+        else if (text_rank == "elf1") { elf1.enqueue(text); }
+        else if (text_rank == "elf2") { elf2.enqueue(text); }
+        else if (text_rank == "reindeer") { reindeer.enqueue(text); }
+        else if (text_rank == "santa") { santa.enqueue(text); }
+    }
+    
+
+    // REMOVE_ALL command that removes specified name
+    void remove_sender(string name)
+    {
+        if (snowman.size() > 0) { to_remove(name, snowman.size(), snowman); }
+        if (elf1.size() > 0) { to_remove(name, elf1.size(), elf1); }
+        if (elf2.size() > 0) { to_remove(name, elf2.size(), elf2); }
+        if (reindeer.size() > 0) { to_remove(name, reindeer.size(), reindeer); }
+        if (santa.size() > 0) { to_remove(name,santa.size(), santa); }
+    }
+
+
+    // Helper function that removes specified name from a given queue and size
+    void to_remove(string username, int sz, Queue &q)
+    {
+        Queue temp; // Temporarily stores a queue that does not include the sender's name
+        while (sz > 0) // Loops to check each element
+        {
+            Announcement current(q.front());
+            q.dequeue();
+
+            // Adds element to temporary queue if the name does not match
+            if (current.get_sender_name() != username) { temp.enqueue(current); }
+            sz--;
+        }
+
+        int new_size = temp.size();
+        while (new_size > 0) // Restores the queue without the matching username
+        {
+            Announcement current(temp.front());
+            q.enqueue(current);
+            temp.dequeue();
+            new_size--;
+        }
+    }
+    
+    // DELETE AFTER: prints out all the queues
+    void printAllQueues()
+    {
+        cout << "santa:\n";
+        santa.print_queue();
+
+        cout << "reindeer:\n";
+        reindeer.print_queue();
+
+        cout << "elf2:\n";
+        elf2.print_queue();
+
+        cout << "elf1:\n";
+        elf1.print_queue();
+
+        cout << "snowman:\n";
+        snowman.print_queue();
+    }
+    
 };
 
 
@@ -178,7 +255,8 @@ int main(int argc, char *argv[])
     string line;
     int num_lines = 0;
 
-    Queue q;
+    JingleNet system;
+
     int start_pos;
     string parsed_text;
 
@@ -188,13 +266,17 @@ int main(int argc, char *argv[])
         if (line.substr(0,4) == "SEND")
         {
             start_pos = std::string("SEND ").size();
-            parsed_text = line.substr(start_pos);
-
-            Announcement text(parsed_text);
-            q.enqueue(text);
+            parsed_text = line.substr(start_pos); // Read only the contents after the command
+            system.send(parsed_text);
         }
         else if (line.substr(0,10) == "REMOVE_ALL")
         {
+            cout << "\n\n\nBefore remove_all:" << endl;
+            system.printAllQueues();
+
+            start_pos = std::string("REMOVE_ALL ").size();
+            parsed_text = line.substr(start_pos); // Read only the contents after the command
+            system.remove_sender(parsed_text);
         }
         else if (line.substr(0,21) == "PROMOTE_ANNOUNCEMENTS")
         {
@@ -210,7 +292,9 @@ int main(int argc, char *argv[])
     }
 
     cout << endl;
-    q.print_queue();
+    cout << "After remove_all:" << endl;
+
+    system.printAllQueues();
 
     return 0;
 }
