@@ -69,10 +69,7 @@ public:
     }
 
 
-    int size() const
-    {
-        return sz;
-    }
+    int size() const { return sz; }
 
 
     // Adds nodes from the right
@@ -152,12 +149,12 @@ public:
     {}
 
 
-    // SEND command that adds announcement to the specified rank
+    // SEND command that adds announcement to the queue of the specified rank
     void send(string line)
     {
         Announcement text(line);
+        // Identifies the rank to send the announcement
         string text_rank = to_string(text.get_rank());
-
         if (text_rank == "snowman") { snowman.enqueue(text); }
         else if (text_rank == "elf1") { elf1.enqueue(text); }
         else if (text_rank == "elf2") { elf2.enqueue(text); }
@@ -166,7 +163,7 @@ public:
     }
     
 
-    // REMOVE_ALL command that removes specified name
+    // REMOVE_ALL command that removes specified name from all queues
     void remove_sender(string name)
     {
         if (snowman.size() > 0) { to_remove(name, snowman); }
@@ -204,7 +201,7 @@ public:
 
 
     // Helper function that promotes specified name from a given queue
-    // and moves the node to the next rank
+    // and moves the node to the promoted rank's queue
     void to_promote(string username, Queue &q_start, Queue &q_end, string new_rank)
     {
         int q_start_sz = q_start.size();
@@ -232,15 +229,30 @@ public:
     void to_announce(int n)
     {
         int msgs_to_send = n;
-        if (santa.size() > 0) { msgs_to_send = send_announcement(msgs_to_send, santa); }
-        if (reindeer.size() > 0) { msgs_to_send = send_announcement(msgs_to_send, reindeer); }
-        if (elf2.size() > 0) { msgs_to_send = send_announcement(msgs_to_send, elf2); }
-        if (elf1.size() > 0) { msgs_to_send = send_announcement(msgs_to_send, elf1); }
-        if (snowman.size() > 0) { msgs_to_send = send_announcement(msgs_to_send, snowman); }
+        if (msgs_to_send > 0 && santa.size() > 0)
+        {
+            msgs_to_send = send_announcement(msgs_to_send, santa);
+        }
+        if (msgs_to_send > 0 && reindeer.size() > 0)
+        {
+            msgs_to_send = send_announcement(msgs_to_send, reindeer);
+        }
+        if (msgs_to_send > 0 && elf2.size() > 0)
+        {
+            msgs_to_send = send_announcement(msgs_to_send, elf2);
+        }
+        if (msgs_to_send > 0 && elf1.size() > 0)
+        {
+            msgs_to_send = send_announcement(msgs_to_send, elf1);
+        }
+        if (msgs_to_send > 0 && snowman.size() > 0) 
+        {
+            msgs_to_send = send_announcement(msgs_to_send, snowman);
+        }
     }
 
 
-    // Helper function that passes the number of messages to left to send
+    // Helper function that passes the number of messages left to send
     // and the queue to be dequeued
     int send_announcement(int msgs_left, Queue &q)
     {
@@ -249,36 +261,31 @@ public:
         {
             Announcement a(q.front());
             q.dequeue();
-            jnet.announce(a);
+            jnet.announce(a); // Announces the announcement to jnet
             msgs_left--;
             sz--;
         }
         return msgs_left;
-    }    
+    }
 }; // class JingleNet
 
 
 int main(int argc, char *argv[])
-{
-    cout << "Welcome to Assignment 3!" << endl;
-
-    // Check that the user provided a filename.
-    if (argc != 2)
+{    
+    if (argc != 2) // Check that the user provided a filename.
     {
         cout << "Usage: " << argv[0] << " <filename>" << endl;
         return 1; 
     }
-
     string filename = argv[1];
-    cout << "Printing " << filename << " ..." << endl;
     ifstream infile(filename);
     string line;
-    int num_lines = 0;
 
-    JingleNet system; // Stores the five queues and also interprets the JingleNet commands
-
+    // Stores the index location of where to start reading the line from the text file
     int start_pos;
     string parsed_text;
+
+    JingleNet system; // Stores the five queues and also interprets the JingleNet commands
 
     while (getline(infile, line))
     {
@@ -307,10 +314,6 @@ int main(int argc, char *argv[])
             parsed_text = line.substr(start_pos); // Read only the contents after the command
             system.to_announce(std::stoi(parsed_text)); // stoi function converts str to int
         }
-        num_lines++;
-        cout << "line " << num_lines << ": " << line << endl;
     }
-
     return 0;
-}
-
+} // main
