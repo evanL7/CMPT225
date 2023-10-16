@@ -184,38 +184,93 @@ public:
     // REMOVE_ALL command that removes specified name
     void remove_sender(string name)
     {
-        if (snowman.size() > 0) { to_remove(name, snowman.size(), snowman); }
-        if (elf1.size() > 0) { to_remove(name, elf1.size(), elf1); }
-        if (elf2.size() > 0) { to_remove(name, elf2.size(), elf2); }
-        if (reindeer.size() > 0) { to_remove(name, reindeer.size(), reindeer); }
-        if (santa.size() > 0) { to_remove(name,santa.size(), santa); }
+        if (snowman.size() > 0) { to_remove(name, snowman); }
+        if (elf1.size() > 0) { to_remove(name, elf1); }
+        if (elf2.size() > 0) { to_remove(name, elf2); }
+        if (reindeer.size() > 0) { to_remove(name, reindeer); }
+        if (santa.size() > 0) { to_remove(name, santa); }
     }
 
 
     // Helper function that removes specified name from a given queue and size
-    void to_remove(string username, int sz, Queue &q)
+    void to_remove(string username, Queue &q)
     {
-        Queue temp; // Temporarily stores a queue that does not include the sender's name
+        int sz = q.size();
         while (sz > 0) // Loops to check each element
         {
             Announcement current(q.front());
             q.dequeue();
 
-            // Adds element to temporary queue if the name does not match
-            if (current.get_sender_name() != username) { temp.enqueue(current); }
+            // Adds element to back to the queue if the name does not match
+            if (current.get_sender_name() != username) { q.enqueue(current); }
             sz--;
-        }
-
-        int new_size = temp.size();
-        while (new_size > 0) // Restores the queue without the matching username
-        {
-            Announcement current(temp.front());
-            q.enqueue(current);
-            temp.dequeue();
-            new_size--;
         }
     }
     
+
+    // PROMOTE_ANNOUNCEMENTS command that promotes specified user
+    void promote_user(string name)
+    {
+        if (reindeer.size() > 0) { to_promote(name, reindeer, santa, "santa"); }
+        if (elf2.size() > 0) { to_promote(name, elf2, reindeer, "reindeer"); }
+        if (elf1.size() > 0) { to_promote(name, elf1, elf2, "elf2"); }
+        if (snowman.size() > 0) { to_promote(name, snowman, elf1, "elf1"); }
+    }
+
+
+    // Helper function that promotes specified name from a given queue
+    // and moves the node to the next rank
+    void to_promote(string username, Queue &q_start, Queue &q_end, string new_rank)
+    {
+        int q_start_sz = q_start.size();
+        while (q_start_sz > 0) // Loops to check each element
+        {
+            Announcement current(q_start.front());
+            q_start.dequeue();
+
+            // Adds element to the queue of a rank one higher if the name matches
+            if (current.get_sender_name() == username)
+            {
+                // Updates the announcement's rank to the higher rank
+                Announcement new_current(current.get_sender_name(), 
+                                         to_rank(new_rank), 
+                                         current.get_text());
+                q_end.enqueue(new_current);
+            }
+            else { q_start.enqueue(current); } // Otherwise put the element back
+            q_start_sz--;
+        }
+    }
+
+
+    // ANNOUNCE command that announces n announcements from highest priority to lowest priority
+    void to_announce(int n)
+    {
+        int msgs_to_send = n;
+        if (santa.size() > 0) { msgs_to_send = send_announcement(msgs_to_send, santa); }
+        if (reindeer.size() > 0) { msgs_to_send = send_announcement(msgs_to_send, reindeer); }
+        if (elf2.size() > 0) { msgs_to_send = send_announcement(msgs_to_send, elf2); }
+        if (elf1.size() > 0) { msgs_to_send = send_announcement(msgs_to_send, elf1); }
+        if (snowman.size() > 0) { msgs_to_send = send_announcement(msgs_to_send, snowman); }
+    }
+
+
+    // Helper function that passes the number of messages to left to send
+    // and the queue to be dequeued
+    int send_announcement(int msgs_left, Queue &q)
+    {
+        int sz = q.size();
+        while (msgs_left > 0 && sz > 0)
+        {
+            Announcement a(q.front());
+            q.dequeue();
+            jnet.announce(a);
+            msgs_left--;
+            sz--;
+        }
+        return msgs_left;
+    }
+
     // DELETE AFTER: prints out all the queues
     void printAllQueues()
     {
@@ -271,8 +326,8 @@ int main(int argc, char *argv[])
         }
         else if (line.substr(0,10) == "REMOVE_ALL")
         {
-            cout << "\n\n\nBefore remove_all:" << endl;
-            system.printAllQueues();
+            //cout << "\n\n\nBefore remove_all:" << endl;
+            //system.printAllQueues();
 
             start_pos = std::string("REMOVE_ALL ").size();
             parsed_text = line.substr(start_pos); // Read only the contents after the command
@@ -280,9 +335,23 @@ int main(int argc, char *argv[])
         }
         else if (line.substr(0,21) == "PROMOTE_ANNOUNCEMENTS")
         {
+            //cout << "\n\n\nBefore PROMOTE_ANNOUNCEMENTS:" << endl;
+            //system.printAllQueues();
+
+
+            start_pos = std::string("PROMOTE_ANNOUNCEMENTS ").size();
+            parsed_text = line.substr(start_pos); // Read only the contents after the command
+            system.promote_user(parsed_text);
         }
         else if (line.substr(0,8) == "ANNOUNCE")
         {
+            //cout << "\n\n\nBefore ANNOUNCE:" << endl;
+            //system.printAllQueues();
+
+
+            start_pos = std::string("ANNOUNCE ").size();
+            parsed_text = line.substr(start_pos); // Read only the contents after the command
+            system.to_announce(std::stoi(parsed_text)); // atoi function converts str to int
         }
 
 
@@ -291,10 +360,10 @@ int main(int argc, char *argv[])
         cout << "line " << num_lines << ": " << line << endl;
     }
 
-    cout << endl;
-    cout << "After remove_all:" << endl;
+    //cout << endl;
+    //cout << "After PROMOTE_ANNOUNCEMENTS:" << endl;
 
-    system.printAllQueues();
+    //system.printAllQueues();
 
     return 0;
 }
