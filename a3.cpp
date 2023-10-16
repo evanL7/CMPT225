@@ -40,7 +40,6 @@ using namespace std;
 
 class Queue : public Queue_base<Announcement>
 {
-
     // Nodes create a doubly linked list
     struct Node
     {
@@ -49,11 +48,9 @@ class Queue : public Queue_base<Announcement>
         Node *prev;
     };
 
-    int sz = 0; // Keeps track of the number of nodes
-    
+    int sz = 0; // Keeps track of the number of nodes    
     Node *left = nullptr; // Pointer to the front of the queue
     Node *right = nullptr; // Pointer to the back of the queue
-
 
 public:
 
@@ -78,6 +75,7 @@ public:
     }
 
 
+    // Adds nodes from the right
     void enqueue(const Announcement &item)
     {
         Node *new_node = new Node{item, nullptr, nullptr};
@@ -113,6 +111,7 @@ public:
     }
 
 
+    // Removes nodes from the left
     void dequeue()
     {
         if (left == nullptr) // Empty doubly linked list
@@ -135,21 +134,7 @@ public:
         }
         sz--; // Decrement the number of nodes
     }
-
-
-    // DELETE AFTER: prints starting from the front of the queue
-    void print_queue()
-    {
-        Node *current = left;
-
-        while (current != nullptr)
-        {
-            cout << current->data << endl;
-            current = current->next;
-        }
-    }
-
-};
+}; // class Queue
 
 
 class JingleNet : public Queue
@@ -269,28 +254,8 @@ public:
             sz--;
         }
         return msgs_left;
-    }
-
-    // DELETE AFTER: prints out all the queues
-    void printAllQueues()
-    {
-        cout << "santa:\n";
-        santa.print_queue();
-
-        cout << "reindeer:\n";
-        reindeer.print_queue();
-
-        cout << "elf2:\n";
-        elf2.print_queue();
-
-        cout << "elf1:\n";
-        elf1.print_queue();
-
-        cout << "snowman:\n";
-        snowman.print_queue();
-    }
-    
-};
+    }    
+}; // class JingleNet
 
 
 int main(int argc, char *argv[])
@@ -310,14 +275,14 @@ int main(int argc, char *argv[])
     string line;
     int num_lines = 0;
 
-    JingleNet system;
+    JingleNet system; // Stores the five queues and also interprets the JingleNet commands
 
     int start_pos;
     string parsed_text;
 
     while (getline(infile, line))
     {
-
+        // substr function is used to check which command is in the string
         if (line.substr(0,4) == "SEND")
         {
             start_pos = std::string("SEND ").size();
@@ -326,44 +291,25 @@ int main(int argc, char *argv[])
         }
         else if (line.substr(0,10) == "REMOVE_ALL")
         {
-            //cout << "\n\n\nBefore remove_all:" << endl;
-            //system.printAllQueues();
-
             start_pos = std::string("REMOVE_ALL ").size();
             parsed_text = line.substr(start_pos); // Read only the contents after the command
             system.remove_sender(parsed_text);
         }
         else if (line.substr(0,21) == "PROMOTE_ANNOUNCEMENTS")
         {
-            //cout << "\n\n\nBefore PROMOTE_ANNOUNCEMENTS:" << endl;
-            //system.printAllQueues();
-
-
             start_pos = std::string("PROMOTE_ANNOUNCEMENTS ").size();
             parsed_text = line.substr(start_pos); // Read only the contents after the command
             system.promote_user(parsed_text);
         }
         else if (line.substr(0,8) == "ANNOUNCE")
         {
-            //cout << "\n\n\nBefore ANNOUNCE:" << endl;
-            //system.printAllQueues();
-
-
             start_pos = std::string("ANNOUNCE ").size();
             parsed_text = line.substr(start_pos); // Read only the contents after the command
             system.to_announce(std::stoi(parsed_text)); // atoi function converts str to int
         }
-
-
         num_lines++;
-
         cout << "line " << num_lines << ": " << line << endl;
     }
-
-    //cout << endl;
-    //cout << "After PROMOTE_ANNOUNCEMENTS:" << endl;
-
-    //system.printAllQueues();
 
     return 0;
 }
