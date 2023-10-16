@@ -305,7 +305,7 @@ int main(int argc, char *argv[])
         {
             start_pos = std::string("ANNOUNCE ").size();
             parsed_text = line.substr(start_pos); // Read only the contents after the command
-            system.to_announce(std::stoi(parsed_text)); // atoi function converts str to int
+            system.to_announce(std::stoi(parsed_text)); // stoi function converts str to int
         }
         num_lines++;
         cout << "line " << num_lines << ": " << line << endl;
