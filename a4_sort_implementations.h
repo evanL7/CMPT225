@@ -57,9 +57,10 @@ Sort_stats bubble_sort(vector<T> &v)
     ulong num_comps = 0;
     clock_t start = clock();
 
-    for (int i = 0; i < v.size(); i++)
+    int i, j;
+    for (i = 0; i < v.size(); i++)
     {
-        for (int j = 0; j < v.size() - i - 1; j++)
+        for (j = 0; j < v.size() - i - 1; j++)
         {
             num_comps++;
             if (v[j] > v[j+1])
@@ -72,59 +73,142 @@ Sort_stats bubble_sort(vector<T> &v)
     clock_t end = clock();
     double elapsed_cpu_time_sec = double(end - start) / CLOCKS_PER_SEC;
     
-    return Sort_stats{"bubble sort",
-                      v.size(),
-                      num_comps,
-                      elapsed_cpu_time_sec};
+    return Sort_stats{"bubble sort", v.size(), num_comps, elapsed_cpu_time_sec};
+}
+
+
+// Adapted from https://www.geeksforgeeks.org/insertion-sort/
+template <typename T>
+Sort_stats insertion_sort(vector<T> &v)
+{
+    ulong num_comps = 0;
+    clock_t start = clock();
+
+    int i, j;
+    for (i = 1; i < v.size(); i++)
+    {
+        j = i;
+        num_comps++;
+        while (j > 0 && v[j-1] > v[j])
+        {
+            num_comps++;
+            std::swap(v[j-1], v[j]);
+            j--;
+        }
+    }
+
+    clock_t end = clock();
+    double elapsed_cpu_time_sec = double(end - start) / CLOCKS_PER_SEC;
+    
+    return Sort_stats{"insertion sort", v.size(), num_comps, elapsed_cpu_time_sec};
+}
+
+
+// Adapted from https://www.geeksforgeeks.org/selection-sort/
+template <typename T>
+Sort_stats selection_sort(vector<T> &v)
+{
+    ulong num_comps = 0;
+    clock_t start = clock();
+
+    int i, j, min;
+    for (i = 0; i < v.size(); i++)
+    {
+        min = i;
+        for (j = i+1; j < v.size(); j++)
+        {
+            num_comps++;
+            if (v[min] > v[j]) { min = j; } // Update new min value
+        }
+        std::swap(v[i], v[min]);
+    }
+
+    clock_t end = clock();
+    double elapsed_cpu_time_sec = double(end - start) / CLOCKS_PER_SEC;
+    
+    return Sort_stats{"selection sort", v.size(), num_comps, elapsed_cpu_time_sec};
+}
+
+
+// Adapted from https://www.geeksforgeeks.org/shellsort/
+template <typename T>
+Sort_stats shell_sort(vector<T> &v)
+{
+    ulong num_comps = 0;
+    clock_t start = clock();
+
+    int gap, i, j;
+    for (gap = v.size()/2; gap > 0; gap /= 2)
+    {
+        for (i = gap; i < v.size(); i++)
+        {
+            T temp = v[i];
+            num_comps++;
+            for (j = i; j >= gap && v[j-gap] > temp; j -= gap)
+            {
+                num_comps++;
+                v[j] = v[j-gap];
+            }
+            v[j] = temp;
+        }        
+    }
+
+    clock_t end = clock();
+    double elapsed_cpu_time_sec = double(end - start) / CLOCKS_PER_SEC;
+    
+    return Sort_stats{"shell sort", v.size(), num_comps, elapsed_cpu_time_sec};
 }
 
 /*
 template <typename T>
-Sort_stats insertion_sort(vector<T> &v)
-{
-
-}
-
-
-template <typename T>
-Sort_stats selection_sort(vector<T> &v)
-{
-
-}
-
-
-template <typename T>
-Sort_stats shell_sort(vector<T> &v)
-{
-
-}
-
-
-template <typename T>
 Sort_stats merge_sort(vector<T> &v)
 {
+    ulong num_comps = 0;
+    clock_t start = clock();
 
+    clock_t end = clock();
+    double elapsed_cpu_time_sec = double(end - start) / CLOCKS_PER_SEC;
+    
+    return Sort_stats{"merge sort", v.size(), num_comps, elapsed_cpu_time_sec};
 }
 
 
 template <typename T>
 Sort_stats quick_sort(vector<T> &v)
 {
+    ulong num_comps = 0;
+    clock_t start = clock();
 
+    clock_t end = clock();
+    double elapsed_cpu_time_sec = double(end - start) / CLOCKS_PER_SEC;
+    
+    return Sort_stats{"quick sort", v.size(), num_comps, elapsed_cpu_time_sec};
 }
 
 
 template <typename T>
 Sort_stats iquick_sort(vector<T> &v)
 {
+    ulong num_comps = 0;
+    clock_t start = clock();
 
+    clock_t end = clock();
+    double elapsed_cpu_time_sec = double(end - start) / CLOCKS_PER_SEC;
+    
+    return Sort_stats{"iquick sort", v.size(), num_comps, elapsed_cpu_time_sec};
 }
 
 
 template <typename T>
 Sort_stats priority_queue_sort(vector<T> &v)
 {
+    ulong num_comps = 0;
+    clock_t start = clock();
 
+    clock_t end = clock();
+    double elapsed_cpu_time_sec = double(end - start) / CLOCKS_PER_SEC;
+    
+    return Sort_stats{"priority queue sort", v.size(), num_comps, elapsed_cpu_time_sec};
 }
 
 */
