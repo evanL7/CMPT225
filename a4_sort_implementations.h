@@ -77,13 +77,10 @@ Sort_stats bubble_sort(vector<T> &v)
 }
 
 
-// Adapted from https://www.geeksforgeeks.org/insertion-sort/
+// Helper function for insertion sort as well as iquicksort
 template <typename T>
-Sort_stats insertion_sort(vector<T> &v)
+void insertion_sort_void(vector<T> &v, ulong &num_comps)
 {
-    ulong num_comps = 0;
-    clock_t start = clock();
-
     int i, j;
     for (i = 1; i < v.size(); i++)
     {
@@ -96,6 +93,17 @@ Sort_stats insertion_sort(vector<T> &v)
             j--;
         }
     }
+}
+
+
+// Adapted from https://www.geeksforgeeks.org/insertion-sort/
+template <typename T>
+Sort_stats insertion_sort(vector<T> &v)
+{
+    ulong num_comps = 0;
+    clock_t start = clock();
+
+    insertion_sort_void(v, num_comps);
 
     clock_t end = clock();
     double elapsed_cpu_time_sec = double(end - start) / CLOCKS_PER_SEC;
@@ -237,12 +245,52 @@ Sort_stats merge_sort(vector<T> &v)
     return Sort_stats{"merge sort", v.size(), num_comps, elapsed_cpu_time_sec};
 }
 
-/*
+
+// Helper function for quick sort
+template <typename T>
+int partition(vector<T> &v, int low, int high, ulong &num_comps)
+{
+    T pivot = v[high];
+
+    int i = low-1;
+    for (int j = low; j <= high; j++)
+    {
+        num_comps++;
+        if (v[j] < pivot)
+        {
+            i++;
+            std::swap(v[i], v[j]);
+        }
+    }
+    num_comps++;
+    i++;
+    std::swap(v[i], v[high]);
+
+    return i;
+}
+
+
+// Helper function for quick sort
+template <typename T>
+void quick_sort_void(vector<T> &v, int low, int high, int threshold, ulong &num_comps)
+{
+    if (low + threshold < high)
+    {
+        int pivot = partition(v, low, high, num_comps);
+        quick_sort_void(v, low, pivot-1, threshold, num_comps); // Recursively sorts elements to the left of the pivot
+        quick_sort_void(v, pivot+1, high, threshold, num_comps); // Recursively sorts elements to the right of the pivot
+    }
+}
+
+
+// Adapted from https://www.geeksforgeeks.org/quick-sort/
 template <typename T>
 Sort_stats quick_sort(vector<T> &v)
 {
     ulong num_comps = 0;
     clock_t start = clock();
+
+    quick_sort_void(v, 0, v.size()-1, 0, num_comps);
 
     clock_t end = clock();
     double elapsed_cpu_time_sec = double(end - start) / CLOCKS_PER_SEC;
@@ -251,18 +299,32 @@ Sort_stats quick_sort(vector<T> &v)
 }
 
 
+// Adapted from https://www.geeksforgeeks.org/quick-sort/
 template <typename T>
 Sort_stats iquick_sort(vector<T> &v)
 {
     ulong num_comps = 0;
     clock_t start = clock();
 
+    int threshold;
+    if (v.size() >= 1000) // If size is greater than 999, quicksort and insertion sort used
+    {
+        threshold = 25;
+        quick_sort_void(v, 0, v.size()-1, threshold, num_comps);
+        insertion_sort_void(v, num_comps);
+    }
+    else // If size is less than 1000, only quicksort used
+    {
+        threshold = 0;
+        quick_sort_void(v, 0, v.size()-1, threshold, num_comps);
+    }
+
     clock_t end = clock();
     double elapsed_cpu_time_sec = double(end - start) / CLOCKS_PER_SEC;
     
     return Sort_stats{"iquick sort", v.size(), num_comps, elapsed_cpu_time_sec};
 }
-*/
+
 
 // Helper class for priority queue sort
 // Adapted from week 7 lecture notes
@@ -292,7 +354,7 @@ public:
         while (i > 0 && v[i] < v[(i-1) / 2])
         {
             num_comps++;
-            swap(v[i], v[(i-1) / 2]);
+            std::swap(v[i], v[(i-1) / 2]);
             i = (i-1) / 2;
         }
     }
@@ -321,7 +383,7 @@ public:
             {
                 break;
             }
-            swap(v[i], v[j]);
+            std::swap(v[i], v[j]);
             i = j;
         }
     }
