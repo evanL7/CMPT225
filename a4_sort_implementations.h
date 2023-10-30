@@ -63,7 +63,7 @@ Sort_stats bubble_sort(vector<T> &v)
         for (j = 0; j < v.size() - i - 1; j++)
         {
             num_comps++;
-            if (v[j] > v[j+1])
+            if (v[j] > v[j+1]) // Bubbles larger values to the right
             {
                 std::swap(v[j], v[j+1]);
             }
@@ -271,13 +271,13 @@ int partition(vector<T> &v, int low, int high, ulong &num_comps)
 
 // Helper function for quick sort
 template <typename T>
-void quick_sort_void(vector<T> &v, int low, int high, int threshold, ulong &num_comps)
+void quick_sort_void(vector<T> &v, int low, int high, ulong &num_comps)
 {
-    if (low + threshold < high)
+    if (low < high)
     {
         int pivot = partition(v, low, high, num_comps);
-        quick_sort_void(v, low, pivot-1, threshold, num_comps); // Recursively sorts elements to the left of the pivot
-        quick_sort_void(v, pivot+1, high, threshold, num_comps); // Recursively sorts elements to the right of the pivot
+        quick_sort_void(v, low, pivot-1, num_comps); // Recursively sorts elements to the left of the pivot
+        quick_sort_void(v, pivot+1, high, num_comps); // Recursively sorts elements to the right of the pivot
     }
 }
 
@@ -289,12 +289,29 @@ Sort_stats quick_sort(vector<T> &v)
     ulong num_comps = 0;
     clock_t start = clock();
 
-    quick_sort_void(v, 0, v.size()-1, 0, num_comps);
+    quick_sort_void(v, 0, v.size()-1, num_comps);
 
     clock_t end = clock();
     double elapsed_cpu_time_sec = double(end - start) / CLOCKS_PER_SEC;
     
     return Sort_stats{"quick sort", v.size(), num_comps, elapsed_cpu_time_sec};
+}
+
+
+// Helper function for iquick sort
+template <typename T>
+void iquick_sort_void(vector<T> &v, int low, int high, int threshold, ulong &num_comps)
+{  
+    if (high - low + 1 <= threshold)
+    {
+        insertion_sort_void(v, num_comps);
+    }
+    else
+    {
+        int pivot = partition(v, low, high, num_comps);
+        iquick_sort_void(v, low, pivot-1, threshold, num_comps); // Recursively sorts elements to the left of the pivot
+        iquick_sort_void(v, pivot+1, high, threshold, num_comps); // Recursively sorts elements to the right of the pivot
+    }
 }
 
 
@@ -308,20 +325,13 @@ Sort_stats iquick_sort(vector<T> &v)
     int threshold, sz = v.size();
 
     // Determine which threshold should be used to pass into quicksort
-    if (sz >= 50000) { threshold = 1000; }
-    else if (sz >= 5000) { threshold = 200; }
-    else if (sz >= 1000) { threshold = 50; }
-    else if (sz >= 500) { threshold = 25; }
-    else if (sz >= 100) { threshold = 10; }
-    else { threshold = 0; }
+    if (sz >= 50000) { threshold = 10; }
+    else if (sz >= 20000) { threshold = 10; }
+    else if (sz >= 7500) { threshold = 10; }
+    else if (sz >= 5000) { threshold = 10; }
+    else { threshold = 5; }
 
-    // If size is less than 100, only quicksort used
-    if (threshold == 0) { quick_sort_void(v, 0, v.size()-1, threshold, num_comps); }
-    else
-    {
-        quick_sort_void(v, 0, v.size()-1, threshold, num_comps);
-        insertion_sort_void(v, num_comps);
-    }
+    iquick_sort_void(v, 0, v.size()-1, threshold, num_comps);
 
     clock_t end = clock();
     double elapsed_cpu_time_sec = double(end - start) / CLOCKS_PER_SEC;
