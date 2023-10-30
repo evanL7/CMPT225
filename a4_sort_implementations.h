@@ -300,22 +300,61 @@ Sort_stats quick_sort(vector<T> &v)
 
 // Helper function for iquick sort
 template <typename T>
+int ipartition(vector<T> v, int low, int high, ulong &num_comps)
+{
+    T pivot = v[high];
+    int i, j;
+    i = low;
+    j = low;
+
+    for (int i = low; i < high; i++)
+    {
+        num_comps++;
+        if(v[i] < pivot)
+        {
+            T temp = v[i];
+            v[i] = v[j];
+            v[j] = temp;
+            j += 1;
+        }
+    }
+
+    T temp = v[j];
+    v[j] = v[high];
+    v[high] = temp;
+
+    return j; 
+  }
+ 
+
+// Helper function for iquick sort
+template <typename T>
 void iquick_sort_void(vector<T> &v, int low, int high, int threshold, ulong &num_comps)
 {  
-    if (high - low + 1 <= threshold)
-    {
-        insertion_sort_void(v, num_comps);
-    }
-    else
-    {
-        int pivot = partition(v, low, high, num_comps);
-        iquick_sort_void(v, low, pivot-1, threshold, num_comps); // Recursively sorts elements to the left of the pivot
-        iquick_sort_void(v, pivot+1, high, threshold, num_comps); // Recursively sorts elements to the right of the pivot
-    }
+    //while (low < high)
+    //{
+        if (high - low + 1 < threshold)
+        {
+            insertion_sort_void(v, num_comps);
+            return;
+        }
+        else
+        {
+            int pivot = ipartition(v, low, high, num_comps);
+            if (pivot - low < high - pivot)
+            {
+                iquick_sort_void(v, low, pivot-1, threshold, num_comps); // Recursively sorts elements to the left of the pivot
+                low = pivot+1;
+            }
+            else
+                iquick_sort_void(v, pivot+1, high, threshold, num_comps); // Recursively sorts elements to the right of the pivot
+                high = pivot-1;
+        }
+    //}
 }
 
 
-// Adapted from https://www.geeksforgeeks.org/quick-sort/
+// Adapted from https://www.geeksforgeeks.org/advanced-quick-sort-hybrid-algorithm/
 template <typename T>
 Sort_stats iquick_sort(vector<T> &v)
 {
@@ -329,7 +368,7 @@ Sort_stats iquick_sort(vector<T> &v)
     else if (sz >= 20000) { threshold = 10; }
     else if (sz >= 7500) { threshold = 10; }
     else if (sz >= 5000) { threshold = 10; }
-    else { threshold = 5; }
+    else { threshold = 10; }
 
     iquick_sort_void(v, 0, v.size()-1, threshold, num_comps);
 
