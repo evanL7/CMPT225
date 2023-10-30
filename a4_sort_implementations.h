@@ -176,7 +176,7 @@ void merge(vector<T> &left, vector<T> &right, vector<T> &v, ulong &num_comps)
     int R_sz = right.size();
     int i = 0, j = 0, k = 0;
 
-    while (j < L_sz && k < R_sz)
+    while (j < L_sz && k < R_sz) // Merge left and right vectors into v
     {
         num_comps++;
         if (left[j] < right[k])
@@ -191,12 +191,12 @@ void merge(vector<T> &left, vector<T> &right, vector<T> &v, ulong &num_comps)
         }
         i++;
     }
-    while (j < L_sz)
+    while (j < L_sz) // Copy remaining elements of left vector into 
     {
         v[i] = left[j];
         i++; j++;
     }
-    while (k < R_sz)
+    while (k < R_sz) // Copy remaining elements of right vector into v
     {
         v[i] = right[k];
         i++; k++;
@@ -250,7 +250,7 @@ Sort_stats merge_sort(vector<T> &v)
 template <typename T>
 int partition(vector<T> &v, int low, int high, ulong &num_comps)
 {
-    T pivot = v[high];
+    T pivot = v[high]; // Last element is the pivot
 
     int i = low-1;
     for (int j = low; j <= high; j++)
@@ -262,7 +262,6 @@ int partition(vector<T> &v, int low, int high, ulong &num_comps)
             std::swap(v[i], v[j]);
         }
     }
-    num_comps++;
     i++;
     std::swap(v[i], v[high]);
 
@@ -306,17 +305,22 @@ Sort_stats iquick_sort(vector<T> &v)
     ulong num_comps = 0;
     clock_t start = clock();
 
-    int threshold;
-    if (v.size() >= 1000) // If size is greater than 999, quicksort and insertion sort used
+    int threshold, sz = v.size();
+
+    // Determine which threshold should be used to pass into quicksort
+    if (sz >= 50000) { threshold = 1000; }
+    else if (sz >= 5000) { threshold = 200; }
+    else if (sz >= 1000) { threshold = 50; }
+    else if (sz >= 500) { threshold = 25; }
+    else if (sz >= 100) { threshold = 10; }
+    else { threshold = 0; }
+
+    // If size is less than 100, only quicksort used
+    if (threshold == 0) { quick_sort_void(v, 0, v.size()-1, threshold, num_comps); }
+    else
     {
-        threshold = 25;
         quick_sort_void(v, 0, v.size()-1, threshold, num_comps);
         insertion_sort_void(v, num_comps);
-    }
-    else // If size is less than 1000, only quicksort used
-    {
-        threshold = 0;
-        quick_sort_void(v, 0, v.size()-1, threshold, num_comps);
     }
 
     clock_t end = clock();
@@ -373,12 +377,13 @@ public:
 
         while (2 * i + 1 < size())
         {
-            num_comps++;
             j = 2 * i + 1;
+            num_comps++;
             if (j + 1 < size() && v[j + 1] < v[j])
             {
                 j++;
             }
+            num_comps++;
             if (v[i] <= v[j])
             {
                 break;
