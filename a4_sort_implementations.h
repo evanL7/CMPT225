@@ -1,5 +1,30 @@
 // a4_sort_implementations.h
 
+/////////////////////////////////////////////////////////////////////////
+//
+// Student Info
+// ------------
+//
+// Name : Evan Law
+// St.# : 301464313
+// Email: eel3@sfu.ca
+//
+//
+// Statement of Originality
+// ------------------------
+//
+// All the code and comments below are my own original work. For any non-
+// original work, I have provided citations in the comments with enough
+// detail so that someone can see the exact source and extent of the
+// borrowed work.
+//
+// In addition, I have not shared this work with anyone else, and I have
+// not seen solutions from other students, tutors, websites, books,
+// etc.
+//
+/////////////////////////////////////////////////////////////////////////
+
+
 #pragma once
 
 #include "a4_base.h"
@@ -38,18 +63,6 @@ vector<int> rand_vec(int n, int min, int max)
 }
 
 
-// DELETE
-template <typename T>
-void print_vec(vector<T> &vec)
-{
-    for (int i = 0; i < vec.size(); i++)
-    {
-        cout << vec[i] << " ";
-    }
-    cout << endl;
-}
-
-
 // Adapted from https://www.geeksforgeeks.org/bubble-sort/
 template <typename T>
 Sort_stats bubble_sort(vector<T> &v)
@@ -77,7 +90,8 @@ Sort_stats bubble_sort(vector<T> &v)
 }
 
 
-// Helper function for insertion sort as well as iquicksort
+// Helper function for insertion sort as well as iquick sort
+// Adapted from https://www.geeksforgeeks.org/insertion-sort/
 template <typename T>
 void insertion_sort_void(vector<T> &v, ulong &num_comps)
 {
@@ -169,6 +183,7 @@ Sort_stats shell_sort(vector<T> &v)
 
 
 // Helper function for merge sort
+// Adapted from https://www.geeksforgeeks.org/merge-sort/
 template <typename T>
 void merge(vector<T> &left, vector<T> &right, vector<T> &v, ulong &num_comps)
 {
@@ -191,7 +206,7 @@ void merge(vector<T> &left, vector<T> &right, vector<T> &v, ulong &num_comps)
         }
         i++;
     }
-    while (j < L_sz) // Copy remaining elements of left vector into 
+    while (j < L_sz) // Copy remaining elements of left vector into v
     {
         v[i] = left[j];
         i++; j++;
@@ -205,6 +220,7 @@ void merge(vector<T> &left, vector<T> &right, vector<T> &v, ulong &num_comps)
 
 
 // Helper function for merge sort
+// Adapted from https://www.geeksforgeeks.org/merge-sort/
 template <typename T>
 void merge_sort_void(vector<T> &v, ulong &num_comps)
 {
@@ -247,6 +263,7 @@ Sort_stats merge_sort(vector<T> &v)
 
 
 // Helper function for quick sort
+// Adapted from https://www.geeksforgeeks.org/quick-sort/
 template <typename T>
 int partition(vector<T> &v, int low, int high, ulong &num_comps)
 {
@@ -270,14 +287,17 @@ int partition(vector<T> &v, int low, int high, ulong &num_comps)
 
 
 // Helper function for quick sort
+// Adapted from https://www.geeksforgeeks.org/quick-sort/
 template <typename T>
 void quick_sort_void(vector<T> &v, int low, int high, ulong &num_comps)
 {
     if (low < high)
     {
         int pivot = partition(v, low, high, num_comps);
-        quick_sort_void(v, low, pivot-1, num_comps); // Recursively sorts elements to the left of the pivot
-        quick_sort_void(v, pivot+1, high, num_comps); // Recursively sorts elements to the right of the pivot
+        // Recursively sorts elements to the left of the pivot
+        quick_sort_void(v, low, pivot-1, num_comps);
+        // Recursively sorts elements to the right of the pivot
+        quick_sort_void(v, pivot+1, high, num_comps);
     }
 }
 
@@ -298,59 +318,37 @@ Sort_stats quick_sort(vector<T> &v)
 }
 
 
+int THRESHOLD = 2; // Global variable for the threshold of iquick sort
+
 // Helper function for iquick sort
+// Adapted from https://www.geeksforgeeks.org/advanced-quick-sort-hybrid-algorithm/
 template <typename T>
-int ipartition(vector<T> v, int low, int high, ulong &num_comps)
+void iquick_sort_void(vector<T> &v, int low, int high, ulong &num_comps)
 {
-    T pivot = v[high];
-    int i, j;
-    i = low;
-    j = low;
-
-    for (int i = low; i < high; i++)
+    while (low < high)
     {
-        num_comps++;
-        if(v[i] < pivot)
-        {
-            T temp = v[i];
-            v[i] = v[j];
-            v[j] = temp;
-            j += 1;
-        }
-    }
-
-    T temp = v[j];
-    v[j] = v[high];
-    v[high] = temp;
-
-    return j; 
-  }
- 
-
-// Helper function for iquick sort
-template <typename T>
-void iquick_sort_void(vector<T> &v, int low, int high, int threshold, ulong &num_comps)
-{  
-    //while (low < high)
-    //{
-        if (high - low + 1 < threshold)
+        if (high - low + 1 < THRESHOLD)
         {
             insertion_sort_void(v, num_comps);
             return;
         }
         else
         {
-            int pivot = ipartition(v, low, high, num_comps);
+            int pivot = partition(v, low, high, num_comps);
             if (pivot - low < high - pivot)
             {
-                iquick_sort_void(v, low, pivot-1, threshold, num_comps); // Recursively sorts elements to the left of the pivot
+                // Recursively sorts elements to the left of the pivot
+                iquick_sort_void(v, low, pivot-1, num_comps);
                 low = pivot+1;
             }
             else
-                iquick_sort_void(v, pivot+1, high, threshold, num_comps); // Recursively sorts elements to the right of the pivot
+            {
+                // Recursively sorts elements to the right of the pivot
+                iquick_sort_void(v, pivot+1, high, num_comps);
                 high = pivot-1;
+            }
         }
-    //}
+    }
 }
 
 
@@ -361,16 +359,7 @@ Sort_stats iquick_sort(vector<T> &v)
     ulong num_comps = 0;
     clock_t start = clock();
 
-    int threshold, sz = v.size();
-
-    // Determine which threshold should be used to pass into quicksort
-    if (sz >= 50000) { threshold = 10; }
-    else if (sz >= 20000) { threshold = 10; }
-    else if (sz >= 7500) { threshold = 10; }
-    else if (sz >= 5000) { threshold = 10; }
-    else { threshold = 10; }
-
-    iquick_sort_void(v, 0, v.size()-1, threshold, num_comps);
+    iquick_sort_void(v, 0, v.size()-1, num_comps);
 
     clock_t end = clock();
     double elapsed_cpu_time_sec = double(end - start) / CLOCKS_PER_SEC;
