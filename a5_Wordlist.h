@@ -290,10 +290,12 @@ public:
     // Helper function for insert function that allocates memory for a node in the tree
     // count = 1 because creating a node adds a word to the count
     // height = 1 because new node is initially added at leaf
+    // Adapted from https://www.geeksforgeeks.org/insertion-in-an-avl-tree/
     Node* create_node(string key) {return new Node{key, 1, 1, nullptr, nullptr};}
 
 
     // Helper function for insert function that determines the bigger number
+    // Adapted from https://www.geeksforgeeks.org/insertion-in-an-avl-tree/
     int max(int a, int b)
     {  
         if (a > b) {return a;}
@@ -302,6 +304,7 @@ public:
 
 
     // Helper function for insert function that returns the passed in node's height
+    // Adapted from https://www.geeksforgeeks.org/insertion-in-an-avl-tree/
     int height(Node *n)  
     {  
         if (n == nullptr) {return 0;}
