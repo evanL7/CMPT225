@@ -28,7 +28,7 @@
 
 
 // This program creates a Wordlist class that stores words without any duplicates. 
-// The class is implemented using a doubly-linked list.
+// The class is implemented using a doubly linked list data structure.
 
 
 #include "Wordlist_base.h"

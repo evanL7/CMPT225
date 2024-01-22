@@ -24,9 +24,17 @@
 //
 /////////////////////////////////////////////////////////////////////////
 
-//
-// Do not #include any other files!
-//
+
+// This program creates a Queue class that establishes a priority depending on rank.
+// The class is implemented using a queue data structure.
+
+// santa: the highest rank
+// reindeer: the second highest rank
+// elf2: the third highest rank
+// elf1: the fourth highest rank
+// snowman: the lowest rank
+
+
 #include "Announcement.h"
 #include "JingleNet_announcer.h"
 #include "Queue_base.h"

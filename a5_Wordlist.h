@@ -26,9 +26,11 @@
 //
 /////////////////////////////////////////////////////////////////////////
 
-//
-// Do not use any other #includes
-//
+
+// This program creates a Wordlist class that stores words without any duplicates. 
+// The class is implemented using an AVL tree data structure.
+
+
 #include "Wordlist_base.h"
 #include <cassert>
 #include <fstream>
