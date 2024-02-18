@@ -1,5 +1,19 @@
 // a4_sort_implementations.h
 
+// This program implements the following sorting algorithms:
+
+// bubble sort
+// insertion sort
+// selection sort
+// shell sort
+// merge sort
+// quick sort
+// iquick sort
+// priority queue sort where the priority queue is implemented as a heap
+
+// The sort_implementation_data.csv file displays the corresponding number of comparisons 
+// and CPU time of each sorting algorithm
+
 /////////////////////////////////////////////////////////////////////////
 //
 // Student Info
@@ -24,26 +38,16 @@
 //
 /////////////////////////////////////////////////////////////////////////
 
-
-// This program implements the following sorting algorithms:
-
-// bubble sort
-// insertion sort
-// selection sort
-// shell sort
-// merge sort
-// quick sort
-// iquick sort
-// priority queue sort where the priority queue is implemented as a heap
-
-// The sort_implementation_data.csv file displays the corresponding number of comparisons 
-// and CPU time of each sorting algorithm
-
-
 #pragma once
+
 #include "a4_base.h"
+
 using namespace std;
 
+//
+// Put the implementations of all the functions listed in a4_base.h here, as
+// well as is_sorted and rand_vec. You can use other helper functions if needed.
+//
 
 template <typename T>
 bool is_sorted(vector<T> &v)
