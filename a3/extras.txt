@@ -1,0 +1,22 @@
+        cout << "\nWORKIN????\n";
+            //cout << "TEXT:::" << parsed_text << endl;
+            //cout << "WHAT IS THIS" << endl << text << "\nLOOOK UP\n";
+
+
+        Queue temp; // Temporarily stores a queue that does not include the sender's name
+
+
+        int new_size = temp.size();
+        while (new_size > 0) // Restores the queue without the matching username
+        {
+            Announcement current(temp.front());
+            q.enqueue(current);
+            temp.dequeue();
+            new_size--;
+        }
+
+        Queue temp; // Temporarily stores a queue that ONLY includes the sender's name
+        int q_end_sz = q_end.size();
+
+
+                Announcement rank_to_copy(q_end.front()); // Gets the promoted rank

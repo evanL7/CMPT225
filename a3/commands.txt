@@ -1,0 +1,12 @@
+# Call bash commands.txt
+make a3copy
+valgrind ./a3copy jinglenet_input1.txt
+diff announcements.txt output1.txt
+valgrind ./a3copy jinglenet_input2.txt
+diff announcements.txt output2.txt
+valgrind ./a3copy jinglenet_input3.txt
+diff announcements.txt output3.txt
+valgrind ./a3copy jinglenet_input4.txt
+diff announcements.txt output4.txt
+valgrind ./a3copy jinglenet_input5.txt
+diff announcements.txt output5.txt
