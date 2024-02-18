@@ -1,5 +1,9 @@
 // a1_main.cpp
 
+// Usage:
+// >> make a1_main
+// >> ./a1_main < small.txt # where small.txt is a file containing words
+
 #include "Wordlist.h"
 #include "test.h"
 
@@ -34,7 +38,6 @@ void test_Wordlist()
 
 } // test_Wordlist
 
-// Usage: >> ./a1_main < words.txt
 int main()
 {
     read_from_terminal();
