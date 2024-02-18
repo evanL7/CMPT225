@@ -1,5 +1,8 @@
 // a2_test.cpp
 
+// This program creates a Stringlist class that implements an undo feature.
+// The class is implemented using a stack data structure.
+
 // Usage:
 // >> make a2_test
 // >> ./a2_test

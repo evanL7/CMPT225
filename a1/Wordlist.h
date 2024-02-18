@@ -1,6 +1,7 @@
 // Wordlist.h
 
-#pragma once
+// This program creates a Wordlist class that stores words without any duplicates. 
+// The class is implemented using a doubly-linked list.
 
 /////////////////////////////////////////////////////////////////////////
 //
@@ -25,6 +26,8 @@
 // etc.
 //
 /////////////////////////////////////////////////////////////////////////
+
+#pragma once
 
 #include "Wordlist_base.h"
 #include <algorithm>

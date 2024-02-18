@@ -1,9 +1,5 @@
 // a3.cpp
 
-// Usage:
-// >> make a3
-// >> ./a3 jinglenet_input1.txt # where jinglenet_input1.txt is a file containing commands
-
 // This program creates a Queue class that establishes a priority depending on rank.
 // The class is implemented using a queue data structure.
 
@@ -12,6 +8,10 @@
 // elf2: the third highest rank
 // elf1: the fourth highest rank
 // snowman: the lowest rank
+
+// Usage:
+// >> make a3
+// >> ./a3 jinglenet_input1.txt # where jinglenet_input1.txt is a file containing commands
 
 /////////////////////////////////////////////////////////////////////////
 //

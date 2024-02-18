@@ -1,5 +1,8 @@
 // Stringlist.h
 
+// This program creates a Stringlist class that implements an undo feature.
+// The class is implemented using a stack data structure.
+
 /////////////////////////////////////////////////////////////////////////
 //
 // Student Info

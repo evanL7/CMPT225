@@ -1,5 +1,8 @@
 // a1_main.cpp
 
+// This program creates a Wordlist class that stores words without any duplicates. 
+// The class is implemented using a doubly-linked list.
+
 // Usage:
 // >> make a1_main
 // >> ./a1_main < small.txt # where small.txt is a file containing words
