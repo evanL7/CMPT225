@@ -1,0 +1,77 @@
+                cout << "word:" << index_pos << endl;
+                cout << "What num? : " << index_pos << endl;
+                cout << "Whats size? : " << sz << endl;
+            //s->head = s->head->next;
+
+
+
+        Node *to_delete = s->head;
+        Node *next;
+        while (to_delete != nullptr)
+        {
+            next = to_delete->next;
+            delete to_delete;
+            to_delete = next;
+        }
+        s->head = nullptr; // Prevent dangling pointer
+        delete undo_stack;
+
+
+                for (int i = 0; i < sz; i++)
+                {
+                    if (i == index_pos)
+                    {
+                        while (i < sz - 1)
+                        {
+                            swap(arr[i], arr[i+1]);
+                        }
+                    }
+                }
+
+
+                for (int i = index_pos, swaps = sz - 1; i < swaps; i++)
+                {
+                    swap(arr[i], arr[i+1]); // Shifts the number to remove out of sz bounds
+                }
+
+
+
+
+                    cout << "fq = " << first_quote << " sq = " << second_quote << " minus = " << second_quote - first_quote <<  endl;
+                    cout << "word parsed = " << word << endl;
+                    cout << "count = " << count << endl;
+
+
+        while (sz > 0)
+        {
+            remove_at(sz - 1);
+        }
+            cout << "ran?" << endl;
+
+        // Since remove_at function call adds nodes to the stack,
+        // need to remove the added nodes from the stack to get back to the state before
+        int count = sz;
+        Node *to_delete = undo_stack->head;
+        while (count != 0)
+        {
+            cout << "ran?" << endl;
+            undo_stack->head = undo_stack->head->next;
+            delete to_delete;
+            to_delete = undo_stack->head;
+            count--;
+        }
+
+
+
+    // DELETEAFTER
+    void print_stack(void)
+    {
+        cout << endl;
+        Node *current = undo_stack->head;
+        while (current != nullptr)
+        {
+            cout << current->operation << endl;
+            current = current->next;
+        }
+        cout << endl;
+    }
